@@ -10,10 +10,39 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2022_09_09_122046) do
+ActiveRecord::Schema.define(version: 2022_09_09_124830) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
+
+  create_table "items", force: :cascade do |t|
+    t.string "name"
+    t.float "value"
+    t.date "date"
+    t.bigint "user_id", null: false
+    t.bigint "list_id", null: false
+    t.datetime "created_at", precision: 6, null: false
+    t.datetime "updated_at", precision: 6, null: false
+    t.index ["date"], name: "index_items_on_date"
+    t.index ["list_id"], name: "index_items_on_list_id"
+    t.index ["name"], name: "index_items_on_name"
+    t.index ["user_id"], name: "index_items_on_user_id"
+  end
+
+  create_table "lists", force: :cascade do |t|
+    t.string "name"
+    t.float "budget"
+    t.float "current_value"
+    t.bigint "user_id", null: false
+    t.bigint "window_id", null: false
+    t.bigint "tracker_id"
+    t.datetime "created_at", precision: 6, null: false
+    t.datetime "updated_at", precision: 6, null: false
+    t.index ["name"], name: "index_lists_on_name"
+    t.index ["tracker_id"], name: "index_lists_on_tracker_id"
+    t.index ["user_id"], name: "index_lists_on_user_id"
+    t.index ["window_id"], name: "index_lists_on_window_id"
+  end
 
   create_table "users", force: :cascade do |t|
     t.string "email", default: "", null: false
@@ -27,4 +56,30 @@ ActiveRecord::Schema.define(version: 2022_09_09_122046) do
     t.index ["reset_password_token"], name: "index_users_on_reset_password_token", unique: true
   end
 
+  create_table "windows", force: :cascade do |t|
+    t.string "name"
+    t.float "budget"
+    t.float "current_value"
+    t.date "start_date"
+    t.date "end_date"
+    t.integer "size"
+    t.boolean "closed", default: false
+    t.bigint "user_id", null: false
+    t.bigint "tracker_id"
+    t.datetime "created_at", precision: 6, null: false
+    t.datetime "updated_at", precision: 6, null: false
+    t.index ["closed"], name: "index_windows_on_closed"
+    t.index ["name"], name: "index_windows_on_name"
+    t.index ["start_date"], name: "index_windows_on_start_date"
+    t.index ["tracker_id"], name: "index_windows_on_tracker_id"
+    t.index ["user_id"], name: "index_windows_on_user_id"
+  end
+
+  add_foreign_key "items", "lists"
+  add_foreign_key "items", "users"
+  add_foreign_key "lists", "users"
+  add_foreign_key "lists", "windows"
+  add_foreign_key "lists", "windows", column: "tracker_id"
+  add_foreign_key "windows", "users"
+  add_foreign_key "windows", "windows", column: "tracker_id"
 end
