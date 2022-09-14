@@ -1,9 +1,9 @@
 # HowMuch
 
-HowMuch - when done - will be a basic budgeting webapp.
+When done **HowMuch** will be a basic budgeting webapp.
 
 Currently it's just work in progress.
 
-An yes, also this:
+And yes, also this:
 
-Rails app generated with [lewagon/rails-templates](https://github.com/lewagon/rails-templates), created by the [Le Wagon coding bootcamp](https://www.lewagon.com) team.
+*Rails app generated with [lewagon/rails-templates](https://github.com/lewagon/rails-templates), created by the [Le Wagon coding bootcamp](https://www.lewagon.com) team.*
