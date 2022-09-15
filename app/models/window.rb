@@ -13,9 +13,11 @@ class Window < ApplicationRecord
   #
   # Point: it's an []. So, need to use <<
   #
-  # !!! Can also user arr.methods like .empty?
+  # Can also use other arr#methods like .empty?
   has_and_belongs_to_many :tracked_lists,
                           class_name: 'List',
+                          join_table: :windows_lists,
+                          foreign_key: 'tracker_id',
                           association_foreign_key: 'tracked_list_id',
                           optional: true
 

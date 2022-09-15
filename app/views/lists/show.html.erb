@@ -1,1 +1,5 @@
 <h4>ITEMS:</h4>
+<% @list.items.each do |item| %>
+  <h4><%= item.name %></h4>
+  <p>Value: <%= sprintf("%0.02f", item.value) %> EUR</p>
+<% end %>

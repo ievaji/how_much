@@ -6,8 +6,9 @@ class List < ApplicationRecord
 
   has_and_belongs_to_many :trackers,
                           class_name: 'Window',
-                          join_table: :window_lists,
-                          foreign_key: 'tracker_id',
+                          join_table: :windows_lists,
+                          association_foreign_key: 'tracker_id',
+                          foreign_key: 'tracked_list_id',
                           optional: true
 
   validates :name, presence: true

@@ -1,6 +1,0 @@
-<% @windows.each do |window| %>
-  <h3><%= link_to window.name, window_path(window) %></h3>
-  <p><%= "#{window.start_date.strftime("%d.%m.%Y")} -
-          #{window.end_date.strftime("%d.%m.%Y")}" %></p>
-  <p>Budget: <%= sprintf("%0.02f", window.budget) %> EUR</p>
-<% end %>
