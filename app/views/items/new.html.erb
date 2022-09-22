@@ -1,0 +1,7 @@
+<h2>New Item</h2>
+
+<%= simple_form_for [@list, @item] do |f| %>
+  <%= f.input :name, label: 'Name', placeholder: 'What did you buy?' %>
+  <%= f.input :value, label: 'Price', placeholder: '20' %>
+  <%= f.submit "Save", class: 'btn btn-primary' %>
+<% end %>

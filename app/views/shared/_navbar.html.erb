@@ -1,5 +1,5 @@
 <nav class="navbar navbar-light sticky-top navbar-lewagon">
-  <ul class="navbar-nav d-flex flex-row mx-auto">
+  <ul class="navbar-nav d-flex flex-row justify-content-around">
     <% if user_signed_in? %>
       <li class="nav-item">
         <%= link_to "Open", open_windows_path, class: "nav-link" %>
@@ -13,7 +13,7 @@
       <li class="nav-item">
         <%= link_to "Overviews", "#", class: "nav-link" %>
       </li>
-      <li class="nav-item">
+      <li class="nav-item ml-auto">
         <%= link_to "Log Out", destroy_user_session_path, method: :delete, class: "nav-link" %>
       </li>
     <% else %>

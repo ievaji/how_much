@@ -2,16 +2,27 @@
 <p><%= "#{@window.start_date.strftime("%d.%m.%Y")} -
         #{@window.end_date.strftime("%d.%m.%Y")}" %></p>
 <p>Budget: <%= sprintf("%0.02f", @window.budget) %> EUR</p>
-<br>
+
+<h5><%= link_to "Delete", window_path(@window), method: :delete,
+            data: { confirm: "Are you sure? All data will be lost!" } %>
+</h5>
+
+<hr>
+
+<h4><%= link_to "+ List", new_window_list_path(@window) %></h4><br>
+
 <% unless @window.lists.empty? %>
-  <h4>LISTS:</h4>
   <% @window.lists.each do |list| %>
     <h4><%= link_to list.name, list_path(list) %></h4>
     <p>Budget: <%= sprintf("%0.02f", list.budget) %> EUR</p>
   <% end %>
-  <br>
 <% end %>
+
 <!-- Need to also include tracked_lists -->
+
+<hr>
+
+<h4><%= link_to ">> Window", window_windows_path(@window) %></h4><br>
 
 <% unless @window.tracked_windows.empty? %>
   <h4>WINDOWS:</h4>

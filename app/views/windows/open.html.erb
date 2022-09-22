@@ -1,3 +1,6 @@
+<br>
+<h4><%= link_to "+ Window", new_window_path %></h4>
+<br>
 <% @open.each do |window| %>
   <h3><%= link_to window.name, window_path(window) %></h3>
   <p><%= "#{window.start_date.strftime("%d.%m.%Y")} -

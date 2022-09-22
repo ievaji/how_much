@@ -1,0 +1,9 @@
+<h2>New Window</h2>
+
+<%= simple_form_for @window do |f| %>
+  <%= f.input :name, label: 'Name', placeholder: 'January' %>
+  <%= f.input :start_date, as: :date, label: 'Start Date' %>
+  <%= f.input :end_date, as: :date, label: 'End Date' %>
+  <%= f.input :budget, label: 'Budget', placeholder: '600' %>
+  <%= f.submit "Save", class: 'btn btn-primary' %>
+<% end %>

@@ -7,14 +7,14 @@ Rails.application.routes.draw do
 
   root to: 'pages#home'
 
-  resources :windows, only: %i[create show edit destroy] do
-    resources :lists, shallow: true
+  resources :windows, only: %i[new create show edit destroy] do
+    resources :windows, only: %i[index]
+    resources :lists, only: %i[new create show edit destroy], shallow: true do
+      resources :items, only: %i[new create destroy], shallow: true
+    end
     collection do
       get :open
       get :closed
     end
   end
-  # Might need to rethink this. What actually needs to be nested inside?
-  # Is it Lists in Windows or Items in Lists?
-  resources :items, only: %i[create destroy]
 end

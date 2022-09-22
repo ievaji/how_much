@@ -1,5 +1,19 @@
-<h4>ITEMS:</h4>
-<% @list.items.each do |item| %>
-  <h4><%= item.name %></h4>
-  <p>Value: <%= sprintf("%0.02f", item.value) %> EUR</p>
+<h4><%= @list.name %></h4>
+<p>Budget: <%= sprintf("%0.02f", @list.budget) %> EUR</p>
+
+<h5><%= link_to "Delete", list_path(@list), method: :delete,
+            data: { confirm: "Are you sure? All data will be lost!" } %>
+</h5>
+
+<hr>
+
+<h4><%= link_to "+ Item", new_list_item_path(@list) %></h4><br>
+
+<% unless @list.items.empty? %>
+  <% @list.items.each do |item| %>
+    <h4><%= item.name %></h4>
+    <p>Value: <%= sprintf("%0.02f", item.value) %> EUR</p>
+    <h6><%= link_to "Delete", item_path(item), method: :delete,
+            data: { confirm: "Are you sure? All data will be lost!" } %></h6>
+  <% end %>
 <% end %>

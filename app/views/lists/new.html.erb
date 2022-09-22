@@ -1,0 +1,7 @@
+<h2>New List</h2>
+
+<%= simple_form_for [@window, @list] do |f| %>
+  <%= f.input :name, label: 'Name', placeholder: 'Groceries' %>
+  <%= f.input :budget, label: 'Budget', placeholder: '600' %>
+  <%= f.submit "Save", class: 'btn btn-primary' %>
+<% end %>
