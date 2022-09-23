@@ -13,6 +13,8 @@
 
 <h4><%= link_to "+ List", new_window_list_path(@window) %></h4><br>
 
+<h4><%= link_to ">> List", window_lists_path(@window) %></h4><br>
+
 <% unless @window.lists.empty? %>
   <% @window.lists.each do |list| %>
 
@@ -23,7 +25,17 @@
   <% end %>
 <% end %>
 
-<!-- Need to also include tracked_lists -->
+<% unless @window.tracked_lists.empty? %>
+  <% @window.tracked_lists.each do |list| %>
+
+    <h4><%= link_to list.name, list_path(list) %></h4>
+
+    <p>Budget: <%= sprintf("%0.02f", list.budget) %> EUR</p>
+
+    <p>Window: <%= list.window.name %> </p>
+
+  <% end %>
+<% end %>
 
 <hr>
 
@@ -36,7 +48,7 @@
 
     <p>Budget: <%= sprintf("%0.02f", win.budget) %> EUR</p>
 
-    <h6><%= link_to "Remove", window_path(win_id: win.id ), method: :patch,
+    <h6><%= link_to "Remove", window_path(win_id: win.id), method: :patch,
             data: { confirm: "Are you sure?" } %>
     </h6>
 

@@ -13,13 +13,20 @@ class ListsController < ApplicationController
   end
 
   def create
-    @list ||= List.new(name: list_name,
-                       budget: budget,
-                       window_id: window_id,
-                       user_id: current_user.id)
-    @list.save!
-    authorize @list
-    redirect_to window_path(window_id)
+    if li_ids.present? # dirty and confused move. but TBR later - works for now
+      add_tracker
+    else
+      @list ||= List.new(name: list_name, budget: budget,
+                         window_id: window_id, user_id: current_user.id)
+      @list.save!
+      authorize @list
+      redirect_to window_path(window_id)
+    end
+  end
+
+  def index
+    @lists = policy_scope(List)
+    @window = Window.find(window_id)
   end
 
   def update
@@ -37,6 +44,12 @@ class ListsController < ApplicationController
     end
 
     redirect_to list_path(@list)
+  end
+
+  def add_tracker
+    authorize @lists
+    li_ids.each { |id| List.find(id).tracker_windows << Window.find(window_id) }
+    redirect_to window_path(window_id)
   end
 
   def destroy

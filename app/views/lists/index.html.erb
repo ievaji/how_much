@@ -1,6 +1,6 @@
-<h2>Track List</h2>
+<h2>Lists Index</h2>
 
-<%= form_tag action: :update do %>
+<%= form_tag do %>
   <ul>
     <% @lists.each do |li| %>
       <li>
@@ -9,5 +9,5 @@
       </li>
     <% end %>
   </ul>
-  <%= button_to 'Save', list_path, method: :patch %>
+  <%= button_to 'Save' %>
 <% end %>

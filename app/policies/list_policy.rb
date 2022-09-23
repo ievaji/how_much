@@ -1,10 +1,10 @@
 class ListPolicy < ApplicationPolicy
-  # class Scope < Scope
-  #   # NOTE: Be explicit about which records you allow access to!
-  #   def resolve
-  #     scope.all
-  #   end
-  # end
+  class Scope < Scope
+    # NOTE: Be explicit about which records you allow access to!
+    def resolve
+      scope.where(user: user)
+    end
+  end
 
   def show?
     record.user_id == user.id
@@ -19,6 +19,10 @@ class ListPolicy < ApplicationPolicy
   end
 
   def update?
+    record.user_id == user.id
+  end
+
+  def add_tracker
     record.user_id == user.id
   end
 

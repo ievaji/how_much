@@ -8,7 +8,7 @@ Rails.application.routes.draw do
   root to: 'pages#home'
 
   resources :windows, except: %i[index] do
-    resources :lists, except: %i[index], shallow: true do
+    resources :lists, shallow: true do
       resources :items, only: %i[new create destroy], shallow: true
     end
     collection do
