@@ -16,16 +16,13 @@ class WindowsController < ApplicationController
     authorize @window
   end
 
-  def index
-    @window = Window.find(params[:window_id])
-    @windows = policy_scope(Window).order(start_date: :desc)
-  end
-
   def new
     @window = current_user.windows.build
     authorize @window
   end
 
+  # would be good to keep the #new part shorter - use a hash as input or sth
+  # strong params?
   def create
     @window ||= Window.new(name: window_name,
                            start_date: start_date,
@@ -36,6 +33,21 @@ class WindowsController < ApplicationController
     @window.save!
     authorize @window
     redirect_to open_windows_path
+  end
+
+  def update
+    @window = Window.find(window_id)
+    @windows = @windows.where.not(id: @window.id)
+    authorize @window
+
+    # definitely not a clean solution. TBR
+    if request.patch?
+      return unless input_provided?
+
+      track_request? ? track_selected : untrack_window
+    end
+
+    redirect_to window_path(@window)
   end
 
   def destroy
@@ -51,8 +63,33 @@ class WindowsController < ApplicationController
     @windows = Window.where(user_id: current_user)
   end
 
+  def input_provided?
+    !win_ids.nil? || !win_id.nil?
+  end
+
+  def track_request?
+    !win_ids.nil?
+  end
+
+  def track_selected
+    win_ids.each { |id| @window.tracked_windows << Window.find(id) }
+  end
+
+  def untrack_window
+    win = Window.find(win_id)
+    @window.tracked_windows.delete(win)
+  end
+
   def window_id
-    params[:id]
+    params[:window_id].nil? ? params[:id] : params[:window_id]
+  end
+
+  def win_ids
+    params[:win_ids]
+  end
+
+  def win_id
+    params[:win_id]
   end
 
   def window_name

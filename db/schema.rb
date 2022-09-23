@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2022_09_14_130006) do
+ActiveRecord::Schema.define(version: 2022_09_23_085648) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -40,6 +40,13 @@ ActiveRecord::Schema.define(version: 2022_09_14_130006) do
     t.index ["name"], name: "index_lists_on_name"
     t.index ["user_id"], name: "index_lists_on_user_id"
     t.index ["window_id"], name: "index_lists_on_window_id"
+  end
+
+  create_table "lists_lists", id: false, force: :cascade do |t|
+    t.bigint "tracker_id"
+    t.bigint "tracked_list_id"
+    t.index ["tracked_list_id"], name: "index_lists_lists_on_tracked_list_id"
+    t.index ["tracker_id"], name: "index_lists_lists_on_tracker_id"
   end
 
   create_table "users", force: :cascade do |t|

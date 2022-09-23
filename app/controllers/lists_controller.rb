@@ -1,4 +1,6 @@
 class ListsController < ApplicationController
+  before_action :set_lists
+
   def show
     @list = List.find(list_id)
     authorize @list
@@ -20,6 +22,23 @@ class ListsController < ApplicationController
     redirect_to window_path(window_id)
   end
 
+  def update
+    @list = List.find(list_id)
+    @lists = @lists.where.not(id: @list.id)
+    authorize @list
+
+    # definitely not a clean solution. TBR - same as in Windows.
+    # maybe need a SuperClass, if the methods are actually the same.
+    # there's an idea for refactoring!
+    if request.patch?
+      return unless input_provided?
+
+      track_request? ? track_selected : untrack_list
+    end
+
+    redirect_to list_path(@list)
+  end
+
   def destroy
     @list = List.find(list_id)
     authorize @list
@@ -30,8 +49,37 @@ class ListsController < ApplicationController
 
   private
 
+  def set_lists
+    @lists = List.where(user_id: current_user.id)
+  end
+
   def list_id
     params[:id]
+  end
+
+  def input_provided?
+    !li_ids.nil? || !li_id.nil?
+  end
+
+  def track_request?
+    !li_ids.nil?
+  end
+
+  def track_selected
+    li_ids.each { |id| @list.tracked_lists << List.find(id) }
+  end
+
+  def untrack_list
+    li = List.find(li_id)
+    @list.tracked_lists.delete(li)
+  end
+
+  def li_ids
+    params[:li_ids]
+  end
+
+  def li_id
+    params[:li_id]
   end
 
   def window_id
