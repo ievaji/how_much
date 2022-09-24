@@ -1,13 +1,33 @@
-<h2>Update Window</h2>
+<% if @add == "window" %>
 
-<%= form_tag action: :update do %>
-  <ul>
-    <% @windows.each do |win| %>
-      <li>
-        <%= check_box_tag 'win_ids[]', win.id %>
-        <%= win.name %>
-      </li>
-    <% end %>
-  </ul>
-  <%= button_to 'Save', window_path, method: :patch %>
+  <h2>Add Windows</h2>
+
+  <%= form_tag action: :update do %>
+    <ul>
+      <% @windows.each do |win| %>
+        <li>
+          <%= check_box_tag 'win_ids[]', win.id %>
+          <%= win.name %>
+        </li>
+      <% end %>
+    </ul>
+    <%= button_to 'Save', window_path, method: :patch %>
+  <% end %>
+
+<% else %>
+
+  <h2>Add Lists</h2>
+
+  <%= form_tag action: :update do %>
+    <ul>
+      <% @lists.each do |li| %>
+        <li>
+          <%= check_box_tag 'li_ids[]', li.id %>
+          <%= li.window.name.first(3) %> :: <%= li.name %>
+        </li>
+      <% end %>
+    </ul>
+    <%= button_to 'Save', window_path, method: :patch %>
+  <% end %>
+
 <% end %>

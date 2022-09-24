@@ -19,12 +19,16 @@ class ListPolicy < ApplicationPolicy
   end
 
   def update?
-    record.user_id == user.id
+    if record.is_a?(ActiveRecord::AssociationRelation)
+      record.each { |r| true if r.user_id == user.id }
+    else
+      record.user_id == user.id
+    end
   end
 
-  def add_tracker
-    record.user_id == user.id
-  end
+  # def add_tracker
+  #   record.user_id == user.id
+  # end
 
   def destroy?
     record.user_id == user.id
