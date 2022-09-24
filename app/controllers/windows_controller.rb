@@ -77,6 +77,7 @@ class WindowsController < ApplicationController
   end
 
   def track_selected
+    # this can surely be abstracted later
     if li_ids.nil?
       win_ids.each { |id| @window.tracked_windows << @windows.find(id) }
     else
@@ -107,7 +108,7 @@ class WindowsController < ApplicationController
     @window = @windows.find(window_id)
   end
 
-  # PARAMS
+  # PARAMS !!! TBR !!!
   def window_id
     params[:window_id].nil? ? params[:id] : params[:window_id]
   end
