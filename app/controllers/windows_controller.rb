@@ -40,7 +40,8 @@ class WindowsController < ApplicationController
   end
 
   def update
-    # would likely be better to authorize the ids / id: 1)extract 2)authorize
+    # would be better to authorize the selected windows/lists
+    # but need some changes for that: get the selected windows/lists first
     authorize @window
 
     track_request? ? track(selected) : untrack(selected)
@@ -61,13 +62,6 @@ class WindowsController < ApplicationController
     selected.values.first.is_a?(Array)
   end
 
-  def selected
-    options = %i[win_id li_id]
-    result = {}
-    options.each { |op| result[op] = params.require(op) unless params[op].nil? }
-    result
-  end
-
   def track(ids)
     if ids.key?(:win_id)
       ids[:win_id].each { |id| @window.tracked_windows << @windows.find(id) }
@@ -78,12 +72,19 @@ class WindowsController < ApplicationController
 
   def untrack(ids)
     if ids.key?(:win_id)
-      id = ids[:win_id].to_i
-      @window.tracked_windows.delete(@windows.find(id))
+      win = @windows.find(ids[:win_id])
+      @window.tracked_windows.delete(win)
     else
-      id = ids[:li_id].to_i
-      @window.tracked_lists.delete(@lists.find(id))
+      li = @lists.find(ids[:li_id])
+      @window.tracked_lists.delete(li)
     end
+  end
+
+  def selected
+    options = %i[win_id li_id]
+    result = {}
+    options.each { |op| result[op] = params.require(op) unless params[op].nil? }
+    result
   end
 
   # BEFORE_ACTION
