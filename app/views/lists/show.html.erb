@@ -20,7 +20,7 @@
 
 <hr>
 
-<h4><%= link_to ">> List", list_path, method: :patch %></h4><br>
+<h4><%= link_to ">> List", lists_list_path %></h4><br>
 
 <% unless @list.tracked_lists.empty? %>
   <% @list.tracked_lists.each do |li| %>

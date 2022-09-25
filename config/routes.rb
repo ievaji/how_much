@@ -10,6 +10,9 @@ Rails.application.routes.draw do
   resources :windows, except: %i[index] do
     resources :lists, except: %i[index], shallow: true do
       resources :items, only: %i[new create destroy], shallow: true
+      member do
+        get :lists
+      end
     end
     collection do
       get :open

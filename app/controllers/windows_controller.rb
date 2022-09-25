@@ -80,13 +80,6 @@ class WindowsController < ApplicationController
     end
   end
 
-  def selected
-    options = %i[win_id li_id]
-    result = {}
-    options.each { |op| result[op] = params.require(op) unless params[op].nil? }
-    result
-  end
-
   # BEFORE_ACTION
   def set_windows
     @windows = current_user.windows.order(start_date: :desc)
@@ -107,12 +100,19 @@ class WindowsController < ApplicationController
     data.each { |k, v| dates << v.to_i if k.include?("date") }
     start_date = Date.new(dates[0], dates[1], dates[2])
     end_date = Date.new(dates[3], dates[4], dates[5])
-    Hash.new(name: data[:name], budget: data[:budget],
-             start_date: start_date, end_date: end_date,
-             size: end_date - start_date)
+    { name: data[:name], budget: data[:budget],
+      start_date: start_date, end_date: end_date,
+      size: end_date - start_date }
   end
 
   def window_id
     params.require(:id)
+  end
+
+  def selected
+    options = %i[win_id li_id]
+    result = {}
+    options.each { |op| result[op] = params.require(op) unless params[op].nil? }
+    result
   end
 end

@@ -4,7 +4,7 @@
   <ul>
     <% @lists.each do |li| %>
       <li>
-        <%= check_box_tag 'li_ids[]', li.id %>
+        <%= check_box_tag 'li_id[]', li.id %>
         <%= li.window.name.first(3) %> :: <%= li.name %>
       </li>
     <% end %>

@@ -1,59 +1,38 @@
 class ListsController < ApplicationController
   before_action :set_lists
+  before_action :find_list, only: %i[show lists update destroy]
+  before_action :find_window, only: %i[new create]
 
   def show
-    @list = List.find(list_id)
     authorize @list
   end
 
   def new
-    @window = Window.find(window_id)
     @list = current_user.lists.build
     authorize @list
   end
 
   def create
-    if li_ids.present? # dirty and confused move. but TBR later - works for now
-      add_tracker
-    else
-      @list ||= List.new(name: list_name, budget: budget,
-                         window_id: window_id, user_id: current_user.id)
-      @list.save!
-      authorize @list
-      redirect_to window_path(window_id)
-    end
+    @list = current_user.lists.build(list_params)
+    @list.save!
+    authorize @list
+    redirect_to window_path(@window)
   end
 
-  def index
-    @lists = policy_scope(List)
-    @window = Window.find(window_id)
+  def lists
+    @lists = @lists.where.not(window_id: @list.window_id)
+    authorize @lists
   end
 
   def update
-    @list = List.find(list_id)
-    @lists = @lists.where.not(id: @list.id)
     authorize @list
 
-    # definitely not a clean solution. TBR - same as in Windows.
-    # maybe need a SuperClass, if the methods are actually the same.
-    # there's an idea for refactoring!
-    if request.patch?
-      return unless input_provided?
-
-      track_request? ? track_selected : untrack_list
-    end
+    track_request? ? track(selected) : untrack(selected)
 
     redirect_to list_path(@list)
   end
 
-  def add_tracker
-    authorize @lists
-    li_ids.each { |id| List.find(id).tracker_windows << Window.find(window_id) }
-    redirect_to window_path(window_id)
-  end
-
   def destroy
-    @list = List.find(list_id)
     authorize @list
     window = @list.window.id
     @list.destroy
@@ -62,48 +41,45 @@ class ListsController < ApplicationController
 
   private
 
-  def set_lists
-    @lists = List.where(user_id: current_user.id)
-  end
-
-  def list_id
-    params[:id]
-  end
-
-  def input_provided?
-    !li_ids.nil? || !li_id.nil?
-  end
-
+  #UPDATE
   def track_request?
-    !li_ids.nil?
+    selected.is_a?(Array)
   end
 
-  def track_selected
-    li_ids.each { |id| @list.tracked_lists << List.find(id) }
+  def track(ids)
+    ids.each { |id| @list.tracked_lists << @lists.find(id) }
   end
 
-  def untrack_list
-    li = List.find(li_id)
+  def untrack(id)
+    li = @lists.find(id)
     @list.tracked_lists.delete(li)
   end
 
-  def li_ids
-    params[:li_ids]
+  # BEFORE_ACTION
+  def set_lists
+    # This ordering can go into model: used here & in WindowsController too
+    @lists = current_user.lists.order(window_id: :desc)
   end
 
-  def li_id
-    params[:li_id]
+  def find_list
+    @list = @lists.find(list_id)
   end
 
-  def window_id
-    params[:window_id]
+  def find_window
+    @window = current_user.windows.find(params.require(:window_id))
   end
 
-  def list_name
-    params[:list][:name]
+  #PARAMS
+  def list_params
+    data = params.require(:list).permit!
+    { name: data[:name], budget: data[:budget], window_id: @window.id }
   end
 
-  def budget
-    params[:list][:budget]
+  def list_id
+    params.require(:id)
+  end
+
+  def selected
+    params.require(:li_id)
   end
 end
