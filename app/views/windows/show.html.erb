@@ -25,7 +25,7 @@
 
 <hr>
 
-<h4><%= link_to ">> List", window_path(add: "list"), method: :patch %></h4><br>
+<h4><%= link_to ">> List", lists_window_path %></h4><br>
 
 <% unless @window.tracked_lists.empty? %>
   <% @window.tracked_lists.each do |li| %>
@@ -45,7 +45,7 @@
 
 <hr>
 
-<h4><%= link_to ">> Window", window_path(add: "window"), method: :patch %></h4><br>
+<h4><%= link_to ">> Window", windows_window_path %></h4><br>
 
 <% unless @window.tracked_windows.empty? %>
   <% @window.tracked_windows.each do |win| %>

@@ -18,6 +18,14 @@ class ListPolicy < ApplicationPolicy
     true
   end
 
+  def lists?
+    if record.is_a?(ActiveRecord::AssociationRelation)
+      record.each { |r| true if r.user_id == user.id }
+    else
+      record.user_id == user.id
+    end
+  end
+
   def update?
     if record.is_a?(ActiveRecord::AssociationRelation)
       record.each { |r| true if r.user_id == user.id }

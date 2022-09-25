@@ -1,15 +1,15 @@
 class WindowsController < ApplicationController
   before_action :set_windows
   before_action :set_lists
-  before_action :find_window, only: %i[show update destroy]
+  before_action :find_window, only: %i[show lists windows update destroy]
 
   def open
-    @open = @windows.where(closed: false).order(start_date: :desc)
+    @open = @windows.where(closed: false)
     authorize @open
   end
 
   def closed
-    @closed = @windows.where(closed: true).order(start_date: :desc)
+    @closed = @windows.where(closed: true)
     authorize @closed
   end
 
@@ -22,36 +22,30 @@ class WindowsController < ApplicationController
     authorize @window
   end
 
-  # would be good to keep the #new part shorter - use a hash as input or sth
-  # strong params?
   def create
-    @window ||= Window.new(name: window_name, start_date: start_date,
-                           end_date: end_date, budget: budget,
-                           size: size, user_id: current_user.id)
+    @window = current_user.windows.build(window_params)
     @window.save!
     authorize @window
     redirect_to open_windows_path
   end
 
-  def update
-    @add = params[:add]
-
-    @windows = @windows.where.not(id: @window.id)
-    authorize @windows
-
+  def lists
     @lists = @lists.where.not(window_id: @window.id)
     authorize @lists
+  end
 
-    if request.patch?
-      # definitely not a clean solution this guard!
-      # currently using 'patch' in link_to to route to #update
-      # that part should be redone - then the guard will fall away
-      return unless input_provided?
+  def windows
+    @windows = @windows.where.not(id: @window.id)
+    authorize @windows
+  end
 
-      track_request? ? track_selected : untrack
-    end
+  def update
+    # would likely be better to authorize the ids / id: 1)extract 2)authorize
+    authorize @window
 
-    redirect_to window_path(@window)
+    track_request? ? track(selected) : untrack(selected)
+
+    redirect_to window_path
   end
 
   def destroy
@@ -62,92 +56,62 @@ class WindowsController < ApplicationController
 
   private
 
-  # CREATE
-  def size
-    end_date - start_date
-  end
-
   # UPDATE
-  def input_provided?
-    !win_ids.nil? || !win_id.nil? || !li_ids.nil? || !li_id.nil?
-  end
-
   def track_request?
-    !win_ids.nil? || !li_ids.nil?
+    selected.values.first.is_a?(Array)
   end
 
-  def track_selected
-    # this can surely be abstracted later
-    if li_ids.nil?
-      win_ids.each { |id| @window.tracked_windows << @windows.find(id) }
+  def selected
+    options = %i[win_id li_id]
+    result = {}
+    options.each { |op| result[op] = params.require(op) unless params[op].nil? }
+    result
+  end
+
+  def track(ids)
+    if ids.key?(:win_id)
+      ids[:win_id].each { |id| @window.tracked_windows << @windows.find(id) }
     else
-      li_ids.each { |id| @window.tracked_lists << @lists.find(id) }
+      ids[:li_id].each { |id| @window.tracked_lists << @lists.find(id) }
     end
   end
 
-  def untrack
-    if li_id.nil?
-      win = @windows.find(win_id)
-      @window.tracked_windows.delete(win)
+  def untrack(ids)
+    if ids.key?(:win_id)
+      id = ids[:win_id].to_i
+      @window.tracked_windows.delete(@windows.find(id))
     else
-      li = @lists.find(li_id)
-      @window.tracked_lists.delete(li)
+      id = ids[:li_id].to_i
+      @window.tracked_lists.delete(@lists.find(id))
     end
   end
 
   # BEFORE_ACTION
   def set_windows
-    @windows = current_user.windows
+    @windows = current_user.windows.order(start_date: :desc)
   end
 
   def set_lists
-    @lists = current_user.lists
+    @lists = current_user.lists.order(window_id: :desc)
   end
 
   def find_window
     @window = @windows.find(window_id)
   end
 
-  # PARAMS !!! TBR !!!
+  # PARAMS
+  def window_params
+    dates = []
+    data = params.require(:window).permit!
+    data.each { |k, v| dates << v.to_i if k.include?("date") }
+    start_date = Date.new(dates[0], dates[1], dates[2])
+    end_date = Date.new(dates[3], dates[4], dates[5])
+    Hash.new(name: data[:name], budget: data[:budget],
+             start_date: start_date, end_date: end_date,
+             size: end_date - start_date)
+  end
+
   def window_id
-    params[:window_id].nil? ? params[:id] : params[:window_id]
-  end
-
-  def win_ids
-    params[:win_ids]
-  end
-
-  def win_id
-    params[:win_id]
-  end
-
-  def li_ids
-    params[:li_ids]
-  end
-
-  def li_id
-    params[:li_id]
-  end
-
-  def window_name
-    params[:window][:name]
-  end
-
-  def budget
-    params[:window][:budget]
-  end
-
-  def start_date
-    day = params[:window]["start_date(3i)"].to_i
-    month = params[:window]["start_date(2i)"].to_i
-    year = params[:window]["start_date(1i)"].to_i
-    Date.new(year, month, day)
-  end
-
-  def end_date
-    day = params[:window]["end_date(3i)"].to_i
-    month = params[:window]["end_date(2i)"].to_i
-    year = params[:window]["end_date(1i)"].to_i
-    Date.new(year, month, day)
+    params.require(:id)
   end
 end

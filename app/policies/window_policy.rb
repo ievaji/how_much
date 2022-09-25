@@ -29,8 +29,13 @@ class WindowPolicy < ApplicationPolicy
     true
   end
 
-  def update?
+  def windows?
     record.each { |r| true if r.user_id == user.id }
+  end
+
+  def update?
+    record.user_id == user.id
+    # record.each { |r| true if user.window_ids.include?(r.to_i) }
   end
 
   def destroy?

@@ -15,5 +15,9 @@ Rails.application.routes.draw do
       get :open
       get :closed
     end
+    member do
+      get :lists
+      get :windows
+    end
   end
 end
