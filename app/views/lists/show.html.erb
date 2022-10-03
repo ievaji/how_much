@@ -1,6 +1,6 @@
 <h4><%= @list.name %></h4>
 <p>Budget: <%= sprintf("%0.02f", @list.budget) %> EUR</p>
-<p>Spent: <%= sprintf("%0.02f", @list.current_value) %> EUR</p>
+<p>Spent: <%= sprintf("%0.02f", @list.value) %> EUR</p>
 <% if @list.exceeded %>
   <h2>STOP SPENDING!!!!</h2>
 <% end %>

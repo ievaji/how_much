@@ -25,4 +25,43 @@ class Window < ApplicationRecord
   validates :budget, numericality: true
   validates :start_date, presence: true
   validates :end_date, presence: true
+
+  def parents
+    trackers.to_a
+  end
+
+  def children
+    children = [lists, tracked_lists, tracked_windows]
+    result = []
+    children.each do |child|
+      child.each { |e| result << e } unless child.empty?
+    end
+    result
+  end
+
+  def reset_value
+    self.value = 0
+    children.each { |child| self.value += child.value }
+    self.save!
+  end
+
+  def update_parents
+    parents.each do |parent|
+      parent.reset_value
+      parent.update_parents unless parent.parents.empty?
+    end
+  end
+
+  def reset_involved_elements
+    children.each do |child|
+      child.value = 0
+      child.save!
+      child.update_parents
+    end
+    parents.each do |parent|
+      parent.value -= value
+      parent.save!
+      parent.update_parents
+    end
+  end
 end

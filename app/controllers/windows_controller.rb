@@ -40,17 +40,16 @@ class WindowsController < ApplicationController
   end
 
   def update
-    # would be better to authorize the selected windows/lists
-    # but need some changes for that: get the selected windows/lists first
     authorize @window
-
     track_request? ? track(selected) : untrack(selected)
-
+    @window.reset_value
+    @window.update_parents
     redirect_to window_path
   end
 
   def destroy
     authorize @window
+    @window.reset_involved_elements
     @window.destroy
     redirect_to open_windows_path
   end

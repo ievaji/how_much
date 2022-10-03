@@ -10,35 +10,22 @@ class ItemsController < ApplicationController
 
   def create
     @item = current_user.items.build(item_params)
-    # @item.list_id = list_id <-- Alternative to custom hashing item_params
-    recalculate_values
-    @item.save!
     authorize @item
+    @item.save!
+    @item.update_parent
     redirect_to list_path(@list)
   end
 
   def destroy
     authorize @item
     @list = current_user.lists.find(@item.list.id)
-    @window = @list.window
-    recalculate_values
     @item.destroy
+    @list.reset_value
+    @list.update_parents
     redirect_to list_path(@list)
   end
 
   private
-
-  # CREATE
-  def recalculate_values
-    action = caller_locations.first.base_label
-    parents = [@list, @window]
-    parents.each do |pt|
-      action == "destroy" ? pt.current_value -= @item.value : pt.current_value += @item.value
-      pt.difference = pt.budget - pt.current_value
-      pt.difference.negative? ? pt.exceeded = true : pt.exceeded = false
-      pt.save!
-    end
-  end
 
   # BEFORE_ACTION
   def set_list

@@ -25,4 +25,35 @@ class List < ApplicationRecord
 
   validates :name, presence: true
   validates :budget, numericality: true
+
+  def parents
+    parents = [tracker_lists, tracker_windows]
+    result = [window]
+    parents.each do |parent|
+      parent.each { |e| result << e } unless parent.empty?
+    end
+    result
+  end
+
+  def children
+    children = [items, tracked_lists]
+    result = []
+    children.each do |child|
+      child.each { |e| result << e } unless child.empty?
+    end
+    result
+  end
+
+  def reset_value
+    self.value = 0
+    children.each { |child| self.value += child.value }
+    self.save!
+  end
+
+  def update_parents
+    parents.each do |parent|
+      parent.reset_value
+      parent.update_parents unless parent.parents.empty?
+    end
+  end
 end

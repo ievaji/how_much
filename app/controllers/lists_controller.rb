@@ -26,17 +26,22 @@ class ListsController < ApplicationController
 
   def update
     authorize @list
-
     track_request? ? track(selected) : untrack(selected)
-
+    @list.reset_value
+    @list.update_parents
     redirect_to list_path(@list)
   end
 
   def destroy
     authorize @list
-    window = @list.window.id
+    @window = current_user.windows.find(@list.window.id)
+    parents = @list.parents
     @list.destroy
-    redirect_to window_path(window)
+    parents.each do |parent|
+      parent.reset_value
+      parent.update_parents
+    end
+    redirect_to window_path(@window)
   end
 
   private

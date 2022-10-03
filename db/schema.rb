@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2022_09_23_085648) do
+ActiveRecord::Schema.define(version: 2022_10_01_095344) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -30,7 +30,7 @@ ActiveRecord::Schema.define(version: 2022_09_23_085648) do
   create_table "lists", force: :cascade do |t|
     t.string "name"
     t.float "budget", default: 0.0
-    t.float "current_value", default: 0.0
+    t.float "value", default: 0.0
     t.float "difference"
     t.boolean "exceeded", default: false
     t.datetime "created_at", precision: 6, null: false
@@ -65,7 +65,7 @@ ActiveRecord::Schema.define(version: 2022_09_23_085648) do
   create_table "windows", force: :cascade do |t|
     t.string "name"
     t.float "budget", default: 0.0
-    t.float "current_value", default: 0.0
+    t.float "value", default: 0.0
     t.float "difference"
     t.boolean "exceeded", default: false
     t.date "start_date"
