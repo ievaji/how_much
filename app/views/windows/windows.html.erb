@@ -4,7 +4,7 @@
   <ul>
     <% @windows.each do |win| %>
       <li>
-        <%= check_box_tag 'win_id[]', win.id %>
+        <%= check_box_tag 'windows[]', win.id %>
         <%= win.name %>
       </li>
     <% end %>

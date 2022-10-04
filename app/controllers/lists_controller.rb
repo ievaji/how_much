@@ -46,17 +46,17 @@ class ListsController < ApplicationController
 
   private
 
-  #UPDATE
+  # UPDATE
   def track_request?
     selected.is_a?(Array)
   end
 
-  def track(ids)
-    ids.each { |id| @list.tracked_lists << @lists.find(id) }
+  def track(selection)
+    selection.each { |id| @list.tracked_lists << @lists.find(id) }
   end
 
-  def untrack(id)
-    li = @lists.find(id)
+  def untrack(selection)
+    li = @lists.find(selection)
     @list.tracked_lists.delete(li)
   end
 
@@ -85,6 +85,6 @@ class ListsController < ApplicationController
   end
 
   def selected
-    params.require(:li_id)
+    params.require(:lists)
   end
 end

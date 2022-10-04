@@ -49,7 +49,7 @@ class WindowsController < ApplicationController
 
   def destroy
     authorize @window
-    @window.reset_involved_elements
+    @window.update_family
     @window.destroy
     redirect_to open_windows_path
   end
@@ -61,22 +61,19 @@ class WindowsController < ApplicationController
     selected.values.first.is_a?(Array)
   end
 
-  def track(ids)
-    if ids.key?(:win_id)
-      ids[:win_id].each { |id| @window.tracked_windows << @windows.find(id) }
-    else
-      ids[:li_id].each { |id| @window.tracked_lists << @lists.find(id) }
-    end
+  def track(selection)
+    key = selection.keys.first
+    instance = instance_variable_get("@#{key}")
+    method = "tracked_#{key}"
+    selection[key].each { |id| @window.send(method) << instance.find(id) }
   end
 
-  def untrack(ids)
-    if ids.key?(:win_id)
-      win = @windows.find(ids[:win_id])
-      @window.tracked_windows.delete(win)
-    else
-      li = @lists.find(ids[:li_id])
-      @window.tracked_lists.delete(li)
-    end
+  def untrack(selection)
+    key = selection.keys.first
+    instance = instance_variable_get("@#{key}")
+    element = instance.find(selection[key])
+    method = "tracked_#{key}"
+    @window.send(method).delete(element)
   end
 
   # BEFORE_ACTION
@@ -109,9 +106,9 @@ class WindowsController < ApplicationController
   end
 
   def selected
-    options = %i[win_id li_id]
+    options = %i[windows lists]
     result = {}
-    options.each { |op| result[op] = params.require(op) unless params[op].nil? }
+    options.each { |o| result[o] = params.require(o) unless params[o].nil? }
     result
   end
 end

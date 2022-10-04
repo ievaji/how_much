@@ -52,14 +52,14 @@ class Window < ApplicationRecord
     end
   end
 
-  def reset_involved_elements
+  def update_family
     children.each do |child|
       child.value = 0
       child.save!
       child.update_parents
     end
     parents.each do |parent|
-      parent.value -= value
+      parent.value -= self.value
       parent.save!
       parent.update_parents
     end

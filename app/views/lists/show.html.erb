@@ -29,13 +29,11 @@
 <% unless @list.tracked_lists.empty? %>
   <% @list.tracked_lists.each do |li| %>
 
-    <h4><%= link_to li.name, list_path(li) %></h4>
+    <h4><%= link_to li.name, list_path(li) %> in <%= link_to li.window.name, window_path(li.window.id) %></h4>
 
     <p>Budget: <%= sprintf("%0.02f", li.budget) %> EUR</p>
 
-    <p>Window: <%= link_to li.window.name, window_path(li.window.id) %></p>
-
-    <h6><%= link_to "Remove", list_path(li_id: li.id ), method: :patch,
+    <h6><%= link_to "Remove", list_path(lists: li.id ), method: :patch,
             data: { confirm: "Are you sure?" } %>
     </h6>
 
