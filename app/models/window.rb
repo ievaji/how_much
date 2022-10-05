@@ -31,12 +31,14 @@ class Window < ApplicationRecord
   end
 
   def children
-    children = [lists, tracked_lists, tracked_windows]
-    result = []
-    children.each do |child|
-      child.each { |e| result << e } unless child.empty?
-    end
-    result
+    [lists.to_a, tracked_lists.to_a, tracked_windows.to_a].flatten
+  end
+
+  def family
+    # alternatively i could just get the WHOLE family here already
+    # but starting out with a MASSIVE dataset might not be the best idea
+    # i like the gradual crawling option better, just gotta make it work
+    [parents, children].flatten
   end
 
   def reset_value
@@ -54,8 +56,7 @@ class Window < ApplicationRecord
 
   def update_family
     children.each do |child|
-      child.value = 0
-      child.save!
+      child.update!(value: 0)
       child.update_parents
     end
     parents.each do |parent|
@@ -63,5 +64,55 @@ class Window < ApplicationRecord
       parent.save!
       parent.update_parents
     end
+  end
+
+  def related_to?(other)
+    other_fam = other.family
+    return true if other_fam.include?(self)
+
+    this_fam = self.family
+    return true if this_fam.include?(other)
+
+    both = [this_fam, other_fam].flatten
+    return true if both.length != both.uniq.length
+
+    return false
+  end
+
+  # TBR !!! Doesn't fully work yet
+  def not_related_to(collection)
+    temp = []
+    collection.each do |window|
+      temp << window unless window.related_to?(self)
+    end
+    result = temp
+    temp.each do |window|
+      window.parents.each do |parent|
+        related = false
+        parent.family.each do |member|
+          if member.related_to?(self)
+            result.delete(window)
+            related = true
+            break
+          end
+        end
+        break if related
+      end
+    end
+    temp = result
+    temp.each do |window|
+      window.children.each do |child|
+        related = false
+        child.family.each do |member|
+          if member.related_to?(self)
+            result.delete(window)
+            related = true
+            break
+          end
+        end
+        break if related
+      end
+    end
+    result
   end
 end

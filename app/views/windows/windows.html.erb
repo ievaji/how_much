@@ -2,7 +2,7 @@
 
 <%= form_tag action: :update do %>
   <ul>
-    <% @windows.each do |win| %>
+    <% @collection.each do |win| %>
       <li>
         <%= check_box_tag 'windows[]', win.id %>
         <%= win.name %>

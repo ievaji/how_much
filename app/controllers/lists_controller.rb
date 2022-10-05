@@ -1,6 +1,6 @@
 class ListsController < ApplicationController
   before_action :set_lists
-  before_action :find_list, only: %i[show lists update destroy]
+  before_action :find_list, except: %i[new create]
   before_action :find_window, only: %i[new create]
 
   def show
@@ -22,6 +22,7 @@ class ListsController < ApplicationController
   def lists
     @lists = @lists.where.not(window_id: @list.window_id)
     authorize @lists
+    @collection = @list.not_related_to(@lists)
   end
 
   def update
@@ -51,8 +52,12 @@ class ListsController < ApplicationController
     selected.is_a?(Array)
   end
 
+  # both of these can go into MODEL
   def track(selection)
-    selection.each { |id| @list.tracked_lists << @lists.find(id) }
+    selection.each do |id|
+      element = @lists.find(id)
+      @list.tracked_lists << element unless @list.related_to?(element)
+    end
   end
 
   def untrack(selection)

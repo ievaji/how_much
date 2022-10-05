@@ -1,7 +1,7 @@
 class WindowsController < ApplicationController
   before_action :set_windows
   before_action :set_lists
-  before_action :find_window, only: %i[show lists windows update destroy]
+  before_action :find_window, except: %i[new create open closed]
 
   def open
     @open = @windows.where(closed: false)
@@ -32,11 +32,14 @@ class WindowsController < ApplicationController
   def lists
     @lists = @lists.where.not(window_id: @window.id)
     authorize @lists
+    @collection = []
+    @lists.each { |list| @collection << list unless @window.related_to?(list) }
   end
 
   def windows
     @windows = @windows.where.not(id: @window.id)
     authorize @windows
+    @collection = @window.not_related_to(@windows)
   end
 
   def update
@@ -62,18 +65,27 @@ class WindowsController < ApplicationController
   end
 
   def track(selection)
+    # key = :windows || :lists <- from #selected
     key = selection.keys.first
-    instance = instance_variable_get("@#{key}")
-    method = "tracked_#{key}"
-    selection[key].each { |id| @window.send(method) << instance.find(id) }
+    tracked = "tracked_#{key}"
+    collection = instance_variable_get("@#{key}")
+    selection[key].each do |id|
+      # working version:
+      @window.send(tracked) << collection.find(id)
+      # IN GENERAL: potential dupes should be eliminated earlier, wrong place for it
+      # element = collection.find(id)
+      # currently the checking breaks everything
+      # @window.send(tracked) << element unless @window.related_to?(element)
+    end
   end
 
   def untrack(selection)
+    # key = :windows || :lists <- from #selected
     key = selection.keys.first
-    instance = instance_variable_get("@#{key}")
-    element = instance.find(selection[key])
-    method = "tracked_#{key}"
-    @window.send(method).delete(element)
+    tracked = "tracked_#{key}"
+    collection = instance_variable_get("@#{key}")
+    element = collection.find(selection[key])
+    @window.send(tracked).delete(element)
   end
 
   # BEFORE_ACTION

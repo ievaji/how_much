@@ -27,21 +27,15 @@ class List < ApplicationRecord
   validates :budget, numericality: true
 
   def parents
-    parents = [tracker_lists, tracker_windows]
-    result = [window]
-    parents.each do |parent|
-      parent.each { |e| result << e } unless parent.empty?
-    end
-    result
+    [tracker_lists.to_a, tracker_windows.to_a].flatten
   end
 
   def children
-    children = [items, tracked_lists]
-    result = []
-    children.each do |child|
-      child.each { |e| result << e } unless child.empty?
-    end
-    result
+    [items.to_a, tracked_lists.to_a].flatten
+  end
+
+  def family
+    [parents, children].flatten
   end
 
   def reset_value
@@ -55,5 +49,50 @@ class List < ApplicationRecord
       parent.reset_value
       parent.update_parents unless parent.parents.empty?
     end
+  end
+
+  def related_to?(other)
+    other_fam = other.family
+    return true if other_fam.include?(self)
+
+    this_fam = self.family
+    return true if this_fam.include?(other)
+
+    both = [this_fam, other_fam].flatten
+    return true if both.length != both.uniq.length
+
+    return false
+  end
+
+  # TBR !!! Works partially. Not sure if problem here or on Window side.
+  def not_related_to(collection)
+    temp = []
+    collection.each do |list|
+      temp << list unless list.related_to?(self)
+    end
+    result = temp
+    temp.each do |list|
+      list.window.family.each do |member|
+        if member.related_to?(self)
+          result.delete(list)
+          break
+        end
+      end
+    end
+    temp = result
+    temp.each do |list|
+      list.window.family.each do |member|
+        related = false
+        member.family.each do |m|
+          if m.related_to?(self)
+            result.delete(list)
+            related = true
+            break
+          end
+        end
+        break if related
+      end
+    end
+    result
   end
 end
