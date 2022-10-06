@@ -79,40 +79,32 @@ class Window < ApplicationRecord
     return false
   end
 
-  # TBR !!! Doesn't fully work yet
-  def not_related_to(collection)
-    temp = []
-    collection.each do |window|
-      temp << window unless window.related_to?(self)
-    end
-    result = temp
-    temp.each do |window|
-      window.parents.each do |parent|
-        related = false
-        parent.family.each do |member|
-          if member.related_to?(self)
-            result.delete(window)
-            related = true
-            break
+  def unrelated(collection)
+    result = []
+    collection.each { |instance| result << instance unless instance.related_to?(self) }
+    filter(result)
+  end
+
+  # TBR :: However, it works!
+  def filter(collection)
+    tbd = []
+    collection.each do |instance|
+      instance.is_a?(List) ? element = instance.window : element = instance
+      tbd << instance if element.related_to?(self)
+      next if tbd.include?(instance)
+
+      element.family.each do |member|
+        tbd << instance if member.related_to?(self)
+        unless tbd.include?(instance)
+          member.family.each do |m|
+            tbd << instance if m.related_to?(self)
+            break if tbd.include?(instance)
           end
         end
-        break if related
+        break if tbd.include?(instance)
       end
     end
-    temp = result
-    temp.each do |window|
-      window.children.each do |child|
-        related = false
-        child.family.each do |member|
-          if member.related_to?(self)
-            result.delete(window)
-            related = true
-            break
-          end
-        end
-        break if related
-      end
-    end
-    result
+    tbd.each { |e| collection.delete(e) }
+    collection
   end
 end

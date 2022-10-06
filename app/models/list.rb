@@ -64,35 +64,32 @@ class List < ApplicationRecord
     return false
   end
 
-  # TBR !!! Works partially. Not sure if problem here or on Window side.
-  def not_related_to(collection)
-    temp = []
-    collection.each do |list|
-      temp << list unless list.related_to?(self)
-    end
-    result = temp
-    temp.each do |list|
-      list.window.family.each do |member|
-        if member.related_to?(self)
-          result.delete(list)
-          break
-        end
-      end
-    end
-    temp = result
-    temp.each do |list|
-      list.window.family.each do |member|
-        related = false
-        member.family.each do |m|
-          if m.related_to?(self)
-            result.delete(list)
-            related = true
-            break
+  def unrelated(collection)
+    result = []
+    collection.each { |instance| result << instance unless instance.related_to?(self) }
+    filter(result)
+  end
+
+  # TBR :: However, it works!
+  def filter(collection)
+    tbd = []
+    collection.each do |instance|
+      element = instance.window
+      tbd << instance if element.related_to?(self)
+      next if tbd.include?(instance)
+
+      element.family.each do |member|
+        tbd << instance if member.related_to?(self)
+        unless tbd.include?(instance)
+          member.family.each do |m|
+            tbd << instance if m.related_to?(self)
+            break if tbd.include?(instance)
           end
         end
-        break if related
+        break if tbd.include?(instance)
       end
     end
-    result
+    tbd.each { |e| collection.delete(e) }
+    collection
   end
 end

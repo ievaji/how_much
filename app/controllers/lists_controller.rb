@@ -22,7 +22,7 @@ class ListsController < ApplicationController
   def lists
     @lists = @lists.where.not(window_id: @list.window_id)
     authorize @lists
-    @collection = @list.not_related_to(@lists)
+    @collection = @list.unrelated(@lists)
   end
 
   def update

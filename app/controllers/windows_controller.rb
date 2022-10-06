@@ -32,14 +32,13 @@ class WindowsController < ApplicationController
   def lists
     @lists = @lists.where.not(window_id: @window.id)
     authorize @lists
-    @collection = []
-    @lists.each { |list| @collection << list unless @window.related_to?(list) }
+    @collection = @window.unrelated(@lists)
   end
 
   def windows
     @windows = @windows.where.not(id: @window.id)
     authorize @windows
-    @collection = @window.not_related_to(@windows)
+    @collection = @window.unrelated(@windows)
   end
 
   def update
