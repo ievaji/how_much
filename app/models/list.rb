@@ -42,13 +42,31 @@ class List < ApplicationRecord
     self.value = 0
     children.each { |child| self.value += child.value }
     self.save!
-    self
+    return self
   end
 
   def update_parents
     parents.each do |parent|
       parent.reset_value
       parent.update_parents unless parent.parents.empty?
+    end
+  end
+
+  def unrelated(collection)
+    collection = collection.to_a
+    related = []
+    collection.each { |instance| related << check(instance) unless check(instance).nil? }
+    related.each { |instance| collection.delete(instance) } unless related.empty?
+    collection
+  end
+
+  private
+
+  def check(instance)
+    instance.family.each do |member|
+      return instance if member.related_to?(self)
+
+      member.family { |m| return instance if m.related_to?(self) }
     end
   end
 
@@ -64,21 +82,5 @@ class List < ApplicationRecord
     return true if both.length != both.uniq.length
 
     return false
-  end
-
-  def unrelated(collection)
-    collection = collection.to_a
-    related = []
-    collection.each { |instance| related << check(instance) unless check(instance).nil? }
-    related.each { |instance| collection.delete(instance) } unless related.empty?
-    collection
-  end
-
-  def check(instance)
-    instance.family.each do |member|
-      return instance if member.related_to?(self)
-
-      member.family { |m| return instance if m.related_to?(self) }
-    end
   end
 end

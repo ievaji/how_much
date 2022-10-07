@@ -44,8 +44,7 @@ class WindowsController < ApplicationController
   def update
     authorize @window
     track_request? ? track(selected) : untrack(selected)
-    @window.reset_value
-    @window.update_parents
+    @window.reset_value.update_parents
     redirect_to window_path
   end
 
