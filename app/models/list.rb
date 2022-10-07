@@ -42,6 +42,7 @@ class List < ApplicationRecord
     self.value = 0
     children.each { |child| self.value += child.value }
     self.save!
+    self
   end
 
   def update_parents

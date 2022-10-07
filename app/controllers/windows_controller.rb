@@ -51,8 +51,9 @@ class WindowsController < ApplicationController
 
   def destroy
     authorize @window
-    @window.update_family
+    parents = @window.parents
     @window.destroy
+    parents.each { |parent| parent.reset_value.update_parents }
     redirect_to open_windows_path
   end
 
@@ -68,14 +69,7 @@ class WindowsController < ApplicationController
     key = selection.keys.first
     tracked = "tracked_#{key}"
     collection = instance_variable_get("@#{key}")
-    selection[key].each do |id|
-      # working version:
-      @window.send(tracked) << collection.find(id)
-      # IN GENERAL: potential dupes should be eliminated earlier, wrong place for it
-      # element = collection.find(id)
-      # currently the checking breaks everything
-      # @window.send(tracked) << element unless @window.related_to?(element)
-    end
+    selection[key].each { |id| @window.send(tracked) << collection.find(id) }
   end
 
   def untrack(selection)

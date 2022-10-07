@@ -28,8 +28,7 @@ class ListsController < ApplicationController
   def update
     authorize @list
     track_request? ? track(selected) : untrack(selected)
-    @list.reset_value
-    @list.update_parents
+    @list.reset_value.update_parents
     redirect_to list_path(@list)
   end
 
@@ -38,10 +37,7 @@ class ListsController < ApplicationController
     @window = current_user.windows.find(@list.window.id)
     parents = @list.parents
     @list.destroy
-    parents.each do |parent|
-      parent.reset_value
-      parent.update_parents
-    end
+    parents.each { |parent| parent.reset_value.update_parents }
     redirect_to window_path(@window)
   end
 
@@ -52,17 +48,12 @@ class ListsController < ApplicationController
     selected.is_a?(Array)
   end
 
-  # both of these can go into MODEL
   def track(selection)
-    selection.each do |id|
-      element = @lists.find(id)
-      @list.tracked_lists << element unless @list.related_to?(element)
-    end
+    selection.each { |id| @list.tracked_lists << @lists.find(id) }
   end
 
   def untrack(selection)
-    li = @lists.find(selection)
-    @list.tracked_lists.delete(li)
+    @list.tracked_lists.delete(@lists.find(selection))
   end
 
   # BEFORE_ACTION

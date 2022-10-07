@@ -42,24 +42,13 @@ class Window < ApplicationRecord
     self.value = 0
     children.each { |child| self.value += child.value }
     self.save!
+    self
   end
 
   def update_parents
     parents.each do |parent|
       parent.reset_value
       parent.update_parents unless parent.parents.empty?
-    end
-  end
-
-  def update_family
-    children.each do |child|
-      child.update!(value: 0)
-      child.update_parents
-    end
-    parents.each do |parent|
-      parent.value -= self.value
-      parent.save!
-      parent.update_parents
     end
   end
 
