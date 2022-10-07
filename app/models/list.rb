@@ -27,7 +27,7 @@ class List < ApplicationRecord
   validates :budget, numericality: true
 
   def parents
-    [tracker_lists.to_a, tracker_windows.to_a].flatten
+    [window, tracker_lists.to_a, tracker_windows.to_a].flatten
   end
 
   def children
@@ -51,6 +51,7 @@ class List < ApplicationRecord
     end
   end
 
+  # ! might also need refactoring
   def related_to?(other)
     other_fam = other.family
     return true if other_fam.include?(self)
@@ -65,31 +66,18 @@ class List < ApplicationRecord
   end
 
   def unrelated(collection)
-    result = []
-    collection.each { |instance| result << instance unless instance.related_to?(self) }
-    filter(result)
+    collection = collection.to_a
+    related = []
+    collection.each { |instance| related << check(instance) unless check(instance).nil? }
+    related.each { |instance| collection.delete(instance) } unless related.empty?
+    collection
   end
 
-  # TBR :: However, it works!
-  def filter(collection)
-    tbd = []
-    collection.each do |instance|
-      element = instance.window
-      tbd << instance if element.related_to?(self)
-      next if tbd.include?(instance)
+  def check(instance)
+    instance.family.each do |member|
+      return instance if member.related_to?(self)
 
-      element.family.each do |member|
-        tbd << instance if member.related_to?(self)
-        unless tbd.include?(instance)
-          member.family.each do |m|
-            tbd << instance if m.related_to?(self)
-            break if tbd.include?(instance)
-          end
-        end
-        break if tbd.include?(instance)
-      end
+      member.family { |m| return instance if m.related_to?(self) }
     end
-    tbd.each { |e| collection.delete(e) }
-    collection
   end
 end
